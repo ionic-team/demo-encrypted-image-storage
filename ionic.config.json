@@ -1,0 +1,7 @@
+{
+  "name": "demo-encrypted-image-storage",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "angular"
+}
