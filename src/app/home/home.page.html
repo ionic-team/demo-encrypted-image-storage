@@ -1,14 +1,24 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>
-      Ionic Blank
+      Photo Gallery
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <div class="ion-padding">
-    The world is your oyster.
-    <p>If you get lost, the <a target="_blank" rel="noopener" href="https://ionicframework.com/docs/">docs</a> will be your guide.</p>
-  </div>
+  <ion-grid>
+    <ion-row>
+    <!-- <ion-col size="6" *ngFor="let photo of photoService.photos; index as position">
+      <ion-img src="{{ photo.webviewPath }}" (click)="showActionSheet(photo, position)"></ion-img>
+    </ion-col>
+    -->
+    </ion-row>
+  </ion-grid>
+  
+  <ion-fab vertical="bottom" horizontal="center" slot="fixed">
+      <ion-fab-button (click)="imageService.saveImage()">
+        <ion-icon name="camera"></ion-icon>
+      </ion-fab-button>
+  </ion-fab>
 </ion-content>
