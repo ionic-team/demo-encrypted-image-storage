@@ -7,15 +7,18 @@
 </ion-header>
 
 <ion-content>
-  <ion-grid>
+  <!-- <ion-grid>
     <ion-row>
-    <!-- <ion-col size="6" *ngFor="let photo of photoService.photos; index as position">
+    <ion-col size="6" *ngFor="let photo of photoService.photos; index as position">
       <ion-img src="{{ photo.webviewPath }}" (click)="showActionSheet(photo, position)"></ion-img>
     </ion-col>
-    -->
+    
     </ion-row>
   </ion-grid>
-  
+  -->
+  <img [src]="safeImg" />
+
+  <ion-button (click)="loadImage()">Load image</ion-button>
   <ion-fab vertical="bottom" horizontal="center" slot="fixed">
       <ion-fab-button (click)="imageService.saveImage()">
         <ion-icon name="camera"></ion-icon>

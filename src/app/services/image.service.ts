@@ -37,23 +37,18 @@ export class ImageService {
     
     const capturedTempImage = await this.camera.getPicture(options);
     const webVersionImage = this.webview.convertFileSrc(capturedTempImage);
-    console.log(webVersionImage);
     
     try {
-      var oReq = new XMLHttpRequest();
-      oReq.open("GET", webVersionImage, false);
-      oReq.responseType = "arraybuffer";
-      // blob error: value.toDictionary is not a function. (In 'value.toDictionary()', 'value.toDictionary' is undefined
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", webVersionImage, false);
+      xhr.responseType = "arraybuffer";
+      xhr.onload = function(oEvent) {    };
+      xhr.send();
 
-      oReq.onload = function(oEvent) {    };
-      oReq.send();
-
-      //let blob = oReq.response;
-      let blob = new Blob("image/jpeg", oReq.response);
-      console.log("BLOG GOT");
+      let blob = new Blob("image/jpeg", xhr.response);
       
       let doc = new MutableDocument();
-      doc.setBlob("testImage", blob);
+      doc.setBlob("test", blob);
 
       try {
         this.database.save(doc);
@@ -64,33 +59,55 @@ export class ImageService {
     } catch(err) {
       console.log(err);
     }
-
-
   }
 
-  public async save64() {
-    const options: CameraOptions = {
-      quality: 100,
-      destinationType: this.camera.DestinationType.DATA_URL,
-      encodingType: this.camera.EncodingType.JPEG,
-      mediaType: this.camera.MediaType.PICTURE
-    }
-    
-    const capturedTempImage = await this.camera.getPicture(options);
-    let base64Image = 'data:image/jpeg;base64,' + capturedTempImage;
+  public async getImage() {
 
-    let bytes = this.base64DecToArr(base64Image, 1);
-    let blob = new Blob("image/jpeg", bytes);
-    console.log("blog got");
-    
     let doc = new MutableDocument();
-    doc.setBlob("testImage", blob);
-
     try {
-      this.database.save(doc);
-    } catch (err) {
-      console.error(err);
+    // this returns an empty ArrayBuffer
+    let docBlob = await doc.getBlobContent("test", this.database);
+    
+    // this returns undefined:
+    //let bits = await doc.getBlob("test").toDictionary();
+    //console.log("content type: " + bits.contentType);
+    //console.log("nums " + bits.data);
+    console.log("retrieved blob: " + docBlob);
+
+    return this.arrayBufferToBase64(docBlob);
     }
+    catch (err) {
+      console.log("err: " + err);
+    }
+  }
+
+  private arrayBufferToBase64(arrayBuffer: ArrayBuffer) {
+     // Converts arraybuffer to typed array object
+    const typedArray = new Uint8Array(arrayBuffer);
+    // length is zero!
+    console.log("typed length: " + typedArray.length);
+
+    // converts the typed array to string of characters
+    const STRING_CHAR = String.fromCharCode.apply(null, typedArray);
+  
+    //converts string of characters to base64String
+    let base64String = btoa(STRING_CHAR);
+    console.log(base64String);
+
+    return `data:image/jpg;base64, ${base64String}`;
+  }
+
+  private _arrayBufferToBase64( buffer ) {
+    var binary = '';
+    var bytes = new Uint8Array( buffer );
+    var len = bytes.byteLength;
+    console.log("length: " + len);
+    for (var i = 0; i < len; i++) {
+       binary += String.fromCharCode( bytes[ i ] );
+    }
+    let base64String = btoa(binary);
+    console.log(base64String);
+    return `data:image/jpg;base64, ${base64String}`;
   }
 
   private async initializeDatabase(): Promise<void> {
@@ -112,40 +129,5 @@ export class ImageService {
         resolve();
       });
     });
-  }
-
-  base64DecToArr (sBase64, nBlockSize) {
-    var
-      sB64Enc = sBase64.replace(/[^A-Za-z0-9\+\/]/g, ""), nInLen = sB64Enc.length,
-      nOutLen = nBlockSize ? Math.ceil((nInLen * 3 + 1 >>> 2) / nBlockSize) * nBlockSize : nInLen * 3 + 1 >>> 2, aBytes = new Uint8Array(nOutLen);
-  
-    for (var nMod3, nMod4, nUint24 = 0, nOutIdx = 0, nInIdx = 0; nInIdx < nInLen; nInIdx++) {
-      nMod4 = nInIdx & 3;
-      nUint24 |= this.b64ToUint6(sB64Enc.charCodeAt(nInIdx)) << 18 - 6 * nMod4;
-      if (nMod4 === 3 || nInLen - nInIdx === 1) {
-        for (nMod3 = 0; nMod3 < 3 && nOutIdx < nOutLen; nMod3++, nOutIdx++) {
-          aBytes[nOutIdx] = nUint24 >>> (16 >>> nMod3 & 24) & 255;
-        }
-        nUint24 = 0;
-      }
-    }
-  
-    return aBytes;
-  }
-
-  b64ToUint6 (nChr) {
-    return nChr > 64 && nChr < 91 ?
-        nChr - 65
-      : nChr > 96 && nChr < 123 ?
-        nChr - 71
-      : nChr > 47 && nChr < 58 ?
-        nChr + 4
-      : nChr === 43 ?
-        62
-      : nChr === 47 ?
-        63
-      :
-        0;
-  
   }
 }
