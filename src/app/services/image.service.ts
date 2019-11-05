@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
+import { File, Entry } from '@ionic-native/file/ngx';
 import {
   CordovaEngine,
   Database,
@@ -15,6 +16,7 @@ import {
   Blob
 } from '@ionic-enterprise/offline-storage';
 import { WebView } from '@ionic-native/ionic-webview/ngx';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -22,8 +24,9 @@ import { WebView } from '@ionic-native/ionic-webview/ngx';
 export class ImageService {
   private database: Database;
   private readyPromise: Promise<void>;
+  private savedDoc: MutableDocument;
   
-  constructor(private camera: Camera, private webview: WebView) { 
+  constructor(private camera: Camera, private file: File, private webview: WebView) { 
     this.readyPromise = this.initializeDatabase();
   }
 
@@ -36,50 +39,85 @@ export class ImageService {
     }
     
     const capturedTempImage = await this.camera.getPicture(options);
-    const webVersionImage = this.webview.convertFileSrc(capturedTempImage);
     
     try {
-      var xhr = new XMLHttpRequest();
-      xhr.open("GET", webVersionImage, false);
-      xhr.responseType = "arraybuffer";
-      xhr.onload = function(oEvent) {    };
-      xhr.send();
+      let fileEntry = await this.file.resolveLocalFilesystemUrl(capturedTempImage) as any;
+      fileEntry.file((file) => {
+        const fileReader = new FileReader();
+        fileReader.onloadend = () => {
+          console.log("file loaded");
+          let blob = new Blob("image/jpeg", fileReader.result as ArrayBuffer);
+          this.savedDoc = new MutableDocument();
+          this.savedDoc.setBlob("test", blob);
 
-      let blob = new Blob("image/jpeg", xhr.response);
-      
-      let doc = new MutableDocument();
-      doc.setBlob("test", blob);
-
-      try {
-        this.database.save(doc);
-        console.log("saved doc");
-      } catch (err) {
-        console.error(err);
-      }
+          try {
+            this.database.save(this.savedDoc);
+            console.log("saved doc");
+          } catch (err) {
+            console.error(err);
+          }
+        }
+        
+        fileReader.readAsArrayBuffer(file);
+      });
     } catch(err) {
       console.log(err);
     }
   }
 
   public async getImage() {
-
-    let doc = new MutableDocument();
-    try {
-    // this returns an empty ArrayBuffer
-    let docBlob = await doc.getBlobContent("test", this.database);
-    
-    // this returns undefined:
-    //let bits = await doc.getBlob("test").toDictionary();
-    //console.log("content type: " + bits.contentType);
-    //console.log("nums " + bits.data);
-    console.log("retrieved blob: " + docBlob);
-
-    return this.arrayBufferToBase64(docBlob);
-    }
-    catch (err) {
-      console.log("err: " + err);
-    }
+    let docBlob = await this.savedDoc.getBlobContent("test", this.database);
+    var arrayBufferView = new Uint8Array(docBlob);
+    var blob = new window.Blob([ arrayBufferView ]);
+    var objectUrl = window.URL.createObjectURL(blob);
+    console.log(objectUrl);
+    //let webViewImage = this.webview.convertFileSrc(objectUrl);
+    //console.log("webv: " + webViewImage);
+    return objectUrl;
   }
+
+    /*
+  public imageDataToBlob(imageData): Observable<any> {
+
+    return Observable.fromPromise(this.file.resolveLocalFilesystemUrl(imageData))
+        .flatMap((fileEntry: FileEntry) => { // Cast entry to fileEntry.
+            return this.fileEntryToObservable(fileEntry)
+        })
+        .flatMap((file) => {
+            return this.fileReaderToObservable(file)
+        });
+  }
+
+public fileEntryToObservable(fileEntry: any): Observable<any> {
+
+    return Observable.create(observer => {
+        // Success.
+        fileEntry.file(function(file) {
+            observer.next(file);
+        },
+        // Error.
+        function (error) {
+            observer.error(error)
+        })
+    });
+}
+
+public fileReaderToObservable(file: any): Observable<any> {
+
+  const fileReader = new FileReader();
+  fileReader.readAsArrayBuffer(file);
+
+  return Observable.create(observer => {
+      // Success.
+      fileReader.onload = ev => {
+          let formData = new FormData();
+          //let imgBlob = new Blob([fileReader.result], { type: file.type });
+          //observer.next(imgBlob);
+      }
+      // Error.
+      fileReader.onerror = error => observer.error(error);
+  });
+  }*/
 
   private arrayBufferToBase64(arrayBuffer: ArrayBuffer) {
      // Converts arraybuffer to typed array object
