@@ -68,11 +68,9 @@ export class ImageService {
   public async getImage() {
     let docBlob = await this.savedDoc.getBlobContent("test", this.database);
     var arrayBufferView = new Uint8Array(docBlob);
-    var blob = new window.Blob([ arrayBufferView ]);
+    var blob = new window.Blob([ arrayBufferView ], { type: "image/jpeg"});
     var objectUrl = window.URL.createObjectURL(blob);
     console.log(objectUrl);
-    //let webViewImage = this.webview.convertFileSrc(objectUrl);
-    //console.log("webv: " + webViewImage);
     return objectUrl;
   }
 
