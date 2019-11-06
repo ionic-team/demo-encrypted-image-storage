@@ -16,7 +16,7 @@ import {
   Blob
 } from '@ionic-enterprise/offline-storage';
 import { WebView } from '@ionic-native/ionic-webview/ngx';
-import { Observable } from 'rxjs';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Injectable({
   providedIn: 'root'
@@ -26,13 +26,13 @@ export class ImageService {
   private readyPromise: Promise<void>;
   private savedDoc: MutableDocument;
   
-  constructor(private camera: Camera, private file: File, private webview: WebView) { 
+  constructor(private camera: Camera, private file: File, private webview: WebView, private sanitizer: DomSanitizer) { 
     this.readyPromise = this.initializeDatabase();
   }
 
   public async saveImage() {
     const options: CameraOptions = {
-      quality: 100,
+      quality: 10,  // 507,919 or 8,705,691
       destinationType: this.camera.DestinationType.FILE_URI,
       encodingType: this.camera.EncodingType.JPEG,
       mediaType: this.camera.MediaType.PICTURE
@@ -45,7 +45,6 @@ export class ImageService {
       fileEntry.file((file) => {
         const fileReader = new FileReader();
         fileReader.onloadend = () => {
-          console.log("file loaded");
           let blob = new Blob("image/jpeg", fileReader.result as ArrayBuffer);
           this.savedDoc = new MutableDocument();
           this.savedDoc.setBlob("test", blob);
@@ -65,85 +64,28 @@ export class ImageService {
     }
   }
 
-  public async getImage() {
+  public getImage() {
+    return new Promise((resolve, reject) => {
+      this.savedDoc.getBlobContent("test", this.database).then((docBlob) => {
+        var bytes = new Uint8Array(docBlob);
+        var blob = new window.Blob([bytes.buffer], { type: "image/jpeg"});
+
+        var reader = new FileReader();
+        reader.onloadend = () => {
+          console.log("finished loading image. Length: " + (reader.result as string).length);
+          resolve(reader.result);
+        };
+        reader.readAsDataURL(blob);
+      });
+    });
+  }
+
+  public async getImageUsingObjectUrl() {
     let docBlob = await this.savedDoc.getBlobContent("test", this.database);
     var arrayBufferView = new Uint8Array(docBlob);
-    var blob = new window.Blob([ arrayBufferView ], { type: "image/jpeg"});
+    var blob = new window.Blob([ arrayBufferView.buffer ], { type: "image/jpeg"});
     var objectUrl = window.URL.createObjectURL(blob);
-    console.log(objectUrl);
-    return objectUrl;
-  }
-
-    /*
-  public imageDataToBlob(imageData): Observable<any> {
-
-    return Observable.fromPromise(this.file.resolveLocalFilesystemUrl(imageData))
-        .flatMap((fileEntry: FileEntry) => { // Cast entry to fileEntry.
-            return this.fileEntryToObservable(fileEntry)
-        })
-        .flatMap((file) => {
-            return this.fileReaderToObservable(file)
-        });
-  }
-
-public fileEntryToObservable(fileEntry: any): Observable<any> {
-
-    return Observable.create(observer => {
-        // Success.
-        fileEntry.file(function(file) {
-            observer.next(file);
-        },
-        // Error.
-        function (error) {
-            observer.error(error)
-        })
-    });
-}
-
-public fileReaderToObservable(file: any): Observable<any> {
-
-  const fileReader = new FileReader();
-  fileReader.readAsArrayBuffer(file);
-
-  return Observable.create(observer => {
-      // Success.
-      fileReader.onload = ev => {
-          let formData = new FormData();
-          //let imgBlob = new Blob([fileReader.result], { type: file.type });
-          //observer.next(imgBlob);
-      }
-      // Error.
-      fileReader.onerror = error => observer.error(error);
-  });
-  }*/
-
-  private arrayBufferToBase64(arrayBuffer: ArrayBuffer) {
-     // Converts arraybuffer to typed array object
-    const typedArray = new Uint8Array(arrayBuffer);
-    // length is zero!
-    console.log("typed length: " + typedArray.length);
-
-    // converts the typed array to string of characters
-    const STRING_CHAR = String.fromCharCode.apply(null, typedArray);
-  
-    //converts string of characters to base64String
-    let base64String = btoa(STRING_CHAR);
-    console.log(base64String);
-
-    return `data:image/jpg;base64, ${base64String}`;
-  }
-
-  private _arrayBufferToBase64( buffer ) {
-    var binary = '';
-    var bytes = new Uint8Array( buffer );
-    var len = bytes.byteLength;
-    console.log("length: " + len);
-    for (var i = 0; i < len; i++) {
-       binary += String.fromCharCode( bytes[ i ] );
-    }
-    let base64String = btoa(binary);
-    console.log(base64String);
-    return `data:image/jpg;base64, ${base64String}`;
+    return this.sanitizer.bypassSecurityTrustUrl(objectUrl);
   }
 
   private async initializeDatabase(): Promise<void> {
