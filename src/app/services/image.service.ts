@@ -17,6 +17,7 @@ import {
 } from '@ionic-enterprise/offline-storage';
 import { WebView } from '@ionic-native/ionic-webview/ngx';
 import { DomSanitizer } from '@angular/platform-browser';
+import { IdentityService } from '../services/identity.service';
 
 @Injectable({
   providedIn: 'root'
@@ -26,13 +27,14 @@ export class ImageService {
   private readyPromise: Promise<void>;
   private savedDoc: MutableDocument;
   
-  constructor(private camera: Camera, private file: File, private webview: WebView, private sanitizer: DomSanitizer) { 
+  constructor(private camera: Camera, private file: File, private webview: WebView, private sanitizer: DomSanitizer, 
+    private identityService: IdentityService) { 
     this.readyPromise = this.initializeDatabase();
   }
 
   public async saveImage() {
     const options: CameraOptions = {
-      quality: 10,  // 507,919 or 8,705,691
+      quality: 10,
       destinationType: this.camera.DestinationType.FILE_URI,
       encodingType: this.camera.EncodingType.JPEG,
       mediaType: this.camera.MediaType.PICTURE
@@ -91,12 +93,9 @@ export class ImageService {
   private async initializeDatabase(): Promise<void> {
     return new Promise(resolve => {
       IonicCBL.onReady(async () => {
-        //todo: IV get encryption key
-        // if not there, create one
-
         const config = new DatabaseConfiguration();
-        config.setEncryptionKey('8e31f8f6-60bd-482a-9c70-69855dd02c38');
-        this.database = new Database('employees', config);
+        config.setEncryptionKey(await this.identityService.getEncryptionKey());
+        this.database = new Database('secureImageStorage', config);
         this.database.setEngine(
           new CordovaEngine({
             allResultsChunkSize: 9999

@@ -1,4 +1,4 @@
-import { Component, SecurityContext, ChangeDetectorRef } from '@angular/core';
+import { Component } from '@angular/core';
 import { ImageService } from '../services/image.service';
 
 @Component({
@@ -9,8 +9,7 @@ import { ImageService } from '../services/image.service';
 export class HomePage {
   public safeImg;
 
-  constructor(public imageService: ImageService, 
-    private changeDetectorRef: ChangeDetectorRef) {
+  constructor(public imageService: ImageService) {
     
   }
 
