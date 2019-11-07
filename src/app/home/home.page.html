@@ -1,27 +1,59 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>
-      Photo Gallery
-    </ion-title>
+    <ion-title>My Travel ID</ion-title>
+    <ion-icon
+      name="refresh"
+      slot="end"
+      size="large"
+      class="icon-toolbar-padding"
+      color="secondary"
+      (click)="loadImageFromSecureStorage()"
+    ></ion-icon>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <!-- <ion-grid>
-    <ion-row>
-    <ion-col size="6" *ngFor="let photo of photoService.photos; index as position">
-      <ion-img src="{{ photo.webviewPath }}" (click)="showActionSheet(photo, position)"></ion-img>
-    </ion-col>
-    
-    </ion-row>
-  </ion-grid>
-  -->
-  <img *ngIf="safeImg" [src]="safeImg" />
+  <img *ngIf="safeImg" [src]="safeImg" width="100%" height="400px" />
 
-  <ion-button (click)="loadImage()">Load image</ion-button>
-  <ion-fab vertical="bottom" horizontal="center" slot="fixed">
-      <ion-fab-button (click)="imageService.saveImage()">
-        <ion-icon name="camera"></ion-icon>
-      </ion-fab-button>
-  </ion-fab>
+  <ion-item>
+    <ion-label>First Name:</ion-label>
+    <ion-label slot="end">Jane</ion-label>
+  </ion-item>
+  <ion-item>
+    <ion-label>Last Name:</ion-label>
+    <ion-label slot="end">Doe</ion-label>
+  </ion-item>
+  <ion-item>
+    <ion-label>Date of Birth:</ion-label>
+    <ion-label slot="end">03/25/1980</ion-label>
+  </ion-item>
+  <ion-item>
+    <ion-label>Age:</ion-label>
+    <ion-label slot="end">40</ion-label>
+  </ion-item>
+  <ion-item>
+    <ion-label>Issue Date:</ion-label>
+    <ion-label slot="end">02/14/2019</ion-label>
+  </ion-item>
+  <ion-item>
+    <ion-label>Expiry Date:</ion-label>
+    <ion-label slot="end">02/14/2035</ion-label>
+  </ion-item>
+  <ion-item>
+    <ion-label>Document Number:</ion-label>
+    <ion-label slot="end">N259823849234</ion-label>
+  </ion-item>
+  <ion-item>
+    <ion-label>Address:</ion-label>
+    <ion-label slot="end">123 Fake St.</ion-label>
+  </ion-item>
 </ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-button (click)="captureImage()" expand="block" fill="solid">
+      Scan Id
+      <ion-icon slot="start" name="camera"></ion-icon>
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>
