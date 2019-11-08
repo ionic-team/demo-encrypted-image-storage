@@ -117,6 +117,12 @@ export class ImageService {
     return this.sanitizer.bypassSecurityTrustUrl(objectUrl);
   }
 
+  // Delete the image document from Offline Storage
+  public async deleteImage() {
+    const imageDoc = await this.database.getDocument(this.DOC_NAME);
+    await this.database.deleteDocument(imageDoc);
+  }
+
   // Initialize the Offline Storage Couchbase Lite database
   // Use Identity Vault to create/get an encryption key unique to the app user.
   private async initializeDatabase(): Promise<void> {

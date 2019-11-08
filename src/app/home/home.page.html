@@ -2,6 +2,14 @@
   <ion-toolbar>
     <ion-title>My Travel ID</ion-title>
     <ion-icon
+      name="trash"
+      slot="end"
+      size="large"
+      class="icon-toolbar-padding"
+      color="secondary"
+      (click)="deleteImage()"
+    ></ion-icon>
+    <ion-icon
       name="refresh"
       slot="end"
       size="large"
@@ -13,40 +21,52 @@
 </ion-header>
 
 <ion-content>
-  <img *ngIf="safeImg" [src]="safeImg" width="100%" height="400px" />
+  <ion-grid *ngIf="safeImg === null" class="no-id-image">
+    <ion-row>
+      <ion-col>
+        <div class="ion-text-center">
+          <h3>Scan your id to get started.</h3>
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 
-  <ion-item>
-    <ion-label>First Name:</ion-label>
-    <ion-label slot="end">Jane</ion-label>
-  </ion-item>
-  <ion-item>
-    <ion-label>Last Name:</ion-label>
-    <ion-label slot="end">Doe</ion-label>
-  </ion-item>
-  <ion-item>
-    <ion-label>Date of Birth:</ion-label>
-    <ion-label slot="end">03/25/1980</ion-label>
-  </ion-item>
-  <ion-item>
-    <ion-label>Age:</ion-label>
-    <ion-label slot="end">40</ion-label>
-  </ion-item>
-  <ion-item>
-    <ion-label>Issue Date:</ion-label>
-    <ion-label slot="end">02/14/2019</ion-label>
-  </ion-item>
-  <ion-item>
-    <ion-label>Expiry Date:</ion-label>
-    <ion-label slot="end">02/14/2035</ion-label>
-  </ion-item>
-  <ion-item>
-    <ion-label>Document Number:</ion-label>
-    <ion-label slot="end">N259823849234</ion-label>
-  </ion-item>
-  <ion-item>
-    <ion-label>Address:</ion-label>
-    <ion-label slot="end">123 Fake St.</ion-label>
-  </ion-item>
+  <div *ngIf="safeImg !== null">
+    <img *ngIf="safeImg" [src]="safeImg" width="100%" height="400px" />
+
+    <ion-item>
+      <ion-label>First Name:</ion-label>
+      <ion-label slot="end">Victor</ion-label>
+    </ion-item>
+    <ion-item>
+      <ion-label>Last Name:</ion-label>
+      <ion-label slot="end">Frami</ion-label>
+    </ion-item>
+    <ion-item>
+      <ion-label>Date of Birth:</ion-label>
+      <ion-label slot="end">09/28/1933</ion-label>
+    </ion-item>
+    <ion-item>
+      <ion-label>Age:</ion-label>
+      <ion-label slot="end">86</ion-label>
+    </ion-item>
+    <ion-item>
+      <ion-label>Issue Date:</ion-label>
+      <ion-label slot="end">12/19/2018</ion-label>
+    </ion-item>
+    <ion-item>
+      <ion-label>Expiry Date:</ion-label>
+      <ion-label slot="end">12/19/2023</ion-label>
+    </ion-item>
+    <ion-item>
+      <ion-label>Doc ID:</ion-label>
+      <ion-label slot="end">G5386743701909</ion-label>
+    </ion-item>
+    <ion-item>
+      <ion-label>Address:</ion-label>
+      <ion-label slot="end">164 Abbott Plains</ion-label>
+    </ion-item>
+  </div>
 </ion-content>
 
 <ion-footer>
