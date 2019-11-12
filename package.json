@@ -76,10 +76,16 @@
       "cordova-plugin-statusbar": {},
       "cordova-plugin-device": {},
       "cordova-plugin-splashscreen": {},
-      "cordova-plugin-ionic-webview": {},
+      "cordova-plugin-ionic-webview": {
+        "ANDROID_SUPPORT_ANNOTATIONS_VERSION": "27.+"
+      },
       "cordova-plugin-ionic-keyboard": {},
       "@ionic-enterprise/offline-storage": {},
-      "@ionic-enterprise/identity-vault": {}
+      "@ionic-enterprise/identity-vault": {},
+      "@ionic-enterprise/camera": {
+        "ANDROID_SUPPORT_V4_VERSION": "27.+"
+      },
+      "@ionic-enterprise/filesystem": {}
     },
     "platforms": [
       "ios",
