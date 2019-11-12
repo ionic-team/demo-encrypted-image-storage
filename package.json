@@ -87,8 +87,8 @@
       "@ionic-enterprise/identity-vault": {}
     },
     "platforms": [
-      "ios",
-      "android"
+      "android",
+      "ios"
     ]
   }
 }

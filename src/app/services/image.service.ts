@@ -37,7 +37,7 @@ export class ImageService {
 
   public async captureNewImage() {
     const options: CameraOptions = {
-      quality: 50,
+      quality: 100,
       destinationType: this.camera.DestinationType.FILE_URI,
       encodingType: this.camera.EncodingType.JPEG,
       mediaType: this.camera.MediaType.PICTURE,
@@ -56,11 +56,7 @@ export class ImageService {
           const imageDoc = new MutableDocument(this.DOC_NAME);
           imageDoc.setBlob(this.DOC_BLOB_NAME, blob);
 
-          try {
-            this.database.save(imageDoc);
-          } catch (err) {
-            console.error(err);
-          }
+          this.database.save(imageDoc);
         }
         
         fileReader.readAsArrayBuffer(file);
