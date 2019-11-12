@@ -49,11 +49,22 @@ export class ImageService {
     const tempPhoto = await this.camera.getPicture(options);
     
     try {
-      let fileEntry = await this.filesystem.readFile({
-        path: tempPhoto
-      });
+      console.log(tempPhoto);
 
-      console.log(fileEntry);
+      let response = await fetch(tempPhoto);      
+      let ab = await response.arrayBuffer();
+      console.log("got ab: " + ab);
+
+      let blob = new Blob("image/jpeg", ab);
+      const imageDoc = new MutableDocument(this.DOC_NAME);
+      imageDoc.setBlob(this.DOC_BLOB_NAME, blob);
+
+      try {
+        await this.database.save(imageDoc);
+        console.log("saved doc success");
+      } catch (err) {
+        console.error(err);
+      }
 
       /*let fileEntry = await this.file.resolveLocalFilesystemUrl(tempPhoto) as any;
       fileEntry.file((file) => {

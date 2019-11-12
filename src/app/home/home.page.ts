@@ -13,7 +13,7 @@ export class HomePage {
   }
 
   async ngOnInit() {
-    const secureImage = await this.imageService.getSecurelyStoredImage();
+    const secureImage = await this.imageService.getImageUsingObjectUrl();
     if (secureImage !== null) {
       this.safeImg = secureImage;
     }

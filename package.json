@@ -88,8 +88,8 @@
       "@ionic-enterprise/filesystem": {}
     },
     "platforms": [
-      "ios",
-      "android"
+      "android",
+      "ios"
     ]
   }
 }
