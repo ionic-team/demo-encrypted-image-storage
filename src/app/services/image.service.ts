@@ -1,6 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
-import { File, Entry } from '@ionic-native/file/ngx';
 import {
   CordovaEngine,
   Database,
@@ -15,6 +13,9 @@ import {
   Expression,
   Blob
 } from '@ionic-enterprise/offline-storage';
+import { Camera, CameraOptions } from '@ionic-enterprise/camera/ngx';
+import { Filesystem } from '@ionic-enterprise/filesystem/ngx';
+import { Directories, Encodings } from '@ionic-enterprise/filesystem';
 import { WebView } from '@ionic-native/ionic-webview/ngx';
 import { DomSanitizer } from '@angular/platform-browser';
 import { IdentityService } from '../services/identity.service';
@@ -30,7 +31,7 @@ export class ImageService {
   private DOC_BLOB_NAME = "blobSecureImage";
   private DATABASE_NAME = "secureImageStorage";
   
-  constructor(private camera: Camera, private file: File, private webview: WebView, private sanitizer: DomSanitizer, 
+  constructor(private camera: Camera, private filesystem: Filesystem, private webview: WebView, private sanitizer: DomSanitizer, 
     private identityService: IdentityService) { 
     this.readyPromise = this.initializeDatabase();
   }
@@ -45,10 +46,16 @@ export class ImageService {
       targetHeight: 400
     }
     
-    const capturedTempImage = await this.camera.getPicture(options);
+    const tempPhoto = await this.camera.getPicture(options);
     
     try {
-      let fileEntry = await this.file.resolveLocalFilesystemUrl(capturedTempImage) as any;
+      let fileEntry = await this.filesystem.readFile({
+        path: tempPhoto
+      });
+
+      console.log(fileEntry);
+
+      /*let fileEntry = await this.file.resolveLocalFilesystemUrl(tempPhoto) as any;
       fileEntry.file((file) => {
         const fileReader = new FileReader();
         fileReader.onloadend = () => {
@@ -64,7 +71,7 @@ export class ImageService {
         }
         
         fileReader.readAsArrayBuffer(file);
-      });
+      });*/
     } catch(err) {
       console.log(err);
     }
@@ -72,7 +79,7 @@ export class ImageService {
     // Display the image immediately. Held in temporary storage, so the OS will clear 
     // out eventually. When the user loads the app at a later time, the encrypted image 
     // is retrieved securely from Offline Storage instead.
-    const resolvedImg = this.webview.convertFileSrc(capturedTempImage);
+    const resolvedImg = this.webview.convertFileSrc(tempPhoto);
     return this.sanitizer.bypassSecurityTrustUrl(resolvedImg);
   }
 
@@ -113,7 +120,6 @@ export class ImageService {
     var arrayBufferView = new Uint8Array(docBlob);
     var blob = new window.Blob([ arrayBufferView.buffer ], { type: "image/jpeg"});
     var objectUrl = window.URL.createObjectURL(blob);
-    console.log("image found: " + objectUrl);
     return this.sanitizer.bypassSecurityTrustUrl(objectUrl);
   }
 
