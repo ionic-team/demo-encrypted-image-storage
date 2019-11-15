@@ -14,8 +14,6 @@ import {
   Blob
 } from '@ionic-enterprise/offline-storage';
 import { Camera, CameraOptions } from '@ionic-enterprise/camera/ngx';
-import { Filesystem } from '@ionic-enterprise/filesystem/ngx';
-import { Directories, Encodings } from '@ionic-enterprise/filesystem';
 import { WebView } from '@ionic-native/ionic-webview/ngx';
 import { DomSanitizer } from '@angular/platform-browser';
 import { IdentityService } from '../services/identity.service';
@@ -31,14 +29,14 @@ export class ImageService {
   private DOC_BLOB_NAME = "blobSecureImage";
   private DATABASE_NAME = "secureImageStorage";
   
-  constructor(private camera: Camera, private filesystem: Filesystem, private webview: WebView, private sanitizer: DomSanitizer, 
+  constructor(private camera: Camera, private webview: WebView, private sanitizer: DomSanitizer, 
     private identityService: IdentityService) { 
     this.readyPromise = this.initializeDatabase();
   }
 
   public async captureNewImage() {
     const options: CameraOptions = {
-      quality: 50,
+      quality: 100,
       destinationType: this.camera.DestinationType.FILE_URI,
       encodingType: this.camera.EncodingType.JPEG,
       mediaType: this.camera.MediaType.PICTURE,
@@ -47,13 +45,15 @@ export class ImageService {
     }
     
     const tempPhoto = await this.camera.getPicture(options);
+    const webVersionImage = this.webview.convertFileSrc(tempPhoto);
     
     try {
       console.log(tempPhoto);
 
-      let response = await fetch(tempPhoto);      
+      let response = await fetch(webVersionImage);
+      console.log("fetch worked? " + response.ok);
       let ab = await response.arrayBuffer();
-      console.log("got ab: " + ab);
+      console.log("got ab - length: " + ab.byteLength);
 
       let blob = new Blob("image/jpeg", ab);
       const imageDoc = new MutableDocument(this.DOC_NAME);
@@ -121,6 +121,8 @@ export class ImageService {
   // Retrieve the encrypted image from Offline Storage then display as a 
   // object URL
   public async getImageUsingObjectUrl() {
+    await this.readyPromise;
+
     const imageDoc = await this.database.getDocument(this.DOC_NAME);
     if (imageDoc === null) {
       console.log("image not found");
