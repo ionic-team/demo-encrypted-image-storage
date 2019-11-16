@@ -21,7 +21,6 @@
     "@angular/platform-browser-dynamic": "~8.1.2",
     "@angular/router": "~8.1.2",
     "@ionic-enterprise/camera": "^4.1.0",
-    "@ionic-enterprise/filesystem": "^1.1.1",
     "@ionic-enterprise/identity-vault": "^3.4.7",
     "@ionic-enterprise/offline-storage": "^1.0.0",
     "@ionic-native/core": "^5.0.0",
@@ -84,8 +83,7 @@
       "@ionic-enterprise/identity-vault": {},
       "@ionic-enterprise/camera": {
         "ANDROID_SUPPORT_V4_VERSION": "27.+"
-      },
-      "@ionic-enterprise/filesystem": {}
+      }
     },
     "platforms": [
       "android",
