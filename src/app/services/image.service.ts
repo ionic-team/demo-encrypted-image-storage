@@ -1,20 +1,13 @@
 import { Injectable } from '@angular/core';
-import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
-import { File, Entry } from '@ionic-native/file/ngx';
 import {
   CordovaEngine,
   Database,
   DatabaseConfiguration,
-  DataSource,
   IonicCBL,
-  Meta,
   MutableDocument,
-  Ordering,
-  QueryBuilder,
-  SelectResult,
-  Expression,
   Blob
 } from '@ionic-enterprise/offline-storage';
+import { Camera, CameraOptions } from '@ionic-enterprise/camera/ngx';
 import { WebView } from '@ionic-native/ionic-webview/ngx';
 import { DomSanitizer } from '@angular/platform-browser';
 import { IdentityService } from '../services/identity.service';
@@ -30,11 +23,13 @@ export class ImageService {
   private DOC_BLOB_NAME = "blobSecureImage";
   private DATABASE_NAME = "secureImageStorage";
   
-  constructor(private camera: Camera, private file: File, private webview: WebView, private sanitizer: DomSanitizer, 
+  constructor(private camera: Camera, private webview: WebView, private sanitizer: DomSanitizer, 
     private identityService: IdentityService) { 
     this.readyPromise = this.initializeDatabase();
   }
 
+  // Open the user's camera on device, convert the photo bits to 
+  // an ArrayBuffer, then save to Offline Storage.
   public async captureNewImage() {
     const options: CameraOptions = {
       quality: 100,
@@ -45,36 +40,26 @@ export class ImageService {
       targetHeight: 400
     }
     
-    const capturedTempImage = await this.camera.getPicture(options);
-    
-    try {
-      let fileEntry = await this.file.resolveLocalFilesystemUrl(capturedTempImage) as any;
-      fileEntry.file((file) => {
-        const fileReader = new FileReader();
-        fileReader.onloadend = () => {
-          let blob = new Blob("image/jpeg", fileReader.result as ArrayBuffer);
-          const imageDoc = new MutableDocument(this.DOC_NAME);
-          imageDoc.setBlob(this.DOC_BLOB_NAME, blob);
+    const tempPhoto = await this.camera.getPicture(options);
+    const webSafePhoto = this.webview.convertFileSrc(tempPhoto);
+    const response = await fetch(webSafePhoto);
+    const photoArrayBuffer = await response.arrayBuffer();
 
-          this.database.save(imageDoc);
-        }
-        
-        fileReader.readAsArrayBuffer(file);
-      });
-    } catch(err) {
-      console.log(err);
-    }
+    const blob = new Blob("image/jpeg", photoArrayBuffer);
+    const imageDoc = new MutableDocument(this.DOC_NAME);
+    imageDoc.setBlob(this.DOC_BLOB_NAME, blob);
+
+    await this.database.save(imageDoc);
 
     // Display the image immediately. Held in temporary storage, so the OS will clear 
     // out eventually. When the user loads the app at a later time, the encrypted image 
-    // is retrieved securely from Offline Storage instead.
-    const resolvedImg = this.webview.convertFileSrc(capturedTempImage);
-    return this.sanitizer.bypassSecurityTrustUrl(resolvedImg);
+    // is retrieved securely from Offline Storage and displayed instead.
+    return this.sanitizer.bypassSecurityTrustUrl(webSafePhoto);
   }
 
   // Retrieve the encrypted image from Offline Storage then display as a 
   // base64 image stream
-  public async getSecurelyStoredImage() {
+  public async getImageAsBase64() {
     await this.readyPromise;
 
     const imageDoc = await this.database.getDocument(this.DOC_NAME);
@@ -82,12 +67,12 @@ export class ImageService {
       return null;
     }
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       imageDoc.getBlobContent(this.DOC_BLOB_NAME, this.database).then((docBlob) => {
-        var bytes = new Uint8Array(docBlob);
-        var blob = new window.Blob([bytes.buffer], { type: "image/jpeg"});
+        const bytes = new Uint8Array(docBlob);
+        const blob = new window.Blob([bytes.buffer], { type: "image/jpeg"});
 
-        var reader = new FileReader();
+        const reader = new FileReader();
         reader.onloadend = () => {
           resolve(reader.result);
         };
@@ -98,18 +83,19 @@ export class ImageService {
 
   // Retrieve the encrypted image from Offline Storage then display as a 
   // object URL
-  public async getImageUsingObjectUrl() {
+  public async getImageAsObjectUrl() {
+    await this.readyPromise;
+
     const imageDoc = await this.database.getDocument(this.DOC_NAME);
     if (imageDoc === null) {
-      console.log("image not found");
       return null;
     }
 
-    let docBlob = await imageDoc.getBlobContent(this.DOC_BLOB_NAME, this.database);
-    var arrayBufferView = new Uint8Array(docBlob);
-    var blob = new window.Blob([ arrayBufferView.buffer ], { type: "image/jpeg"});
-    var objectUrl = window.URL.createObjectURL(blob);
-    console.log("image found: " + objectUrl);
+    const docBlob = await imageDoc.getBlobContent(this.DOC_BLOB_NAME, this.database);
+    const arrayBufferView = new Uint8Array(docBlob);
+    const blob = new window.Blob([ arrayBufferView.buffer ], { type: "image/jpeg"});
+    const objectUrl = window.URL.createObjectURL(blob);
+    
     return this.sanitizer.bypassSecurityTrustUrl(objectUrl);
   }
 

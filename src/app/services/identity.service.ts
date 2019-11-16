@@ -31,7 +31,6 @@ export class IdentityService extends IonicIdentityVaultUser<DefaultSession> {
 
      if (!guid) {
        guid = this.createRandomGuid();
-       console.log("created new GUID");
        (await this.getVault()).storeValue(this.KEY_OFFLINE_STORAGE, guid);
      }
 

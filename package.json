@@ -20,12 +20,10 @@
     "@angular/platform-browser": "~8.1.2",
     "@angular/platform-browser-dynamic": "~8.1.2",
     "@angular/router": "~8.1.2",
-    "@ionic-enterprise/filesystem": "^1.1.1",
+    "@ionic-enterprise/camera": "^4.1.0",
     "@ionic-enterprise/identity-vault": "^3.4.7",
     "@ionic-enterprise/offline-storage": "^1.0.0",
-    "@ionic-native/camera": "^5.15.1",
     "@ionic-native/core": "^5.0.0",
-    "@ionic-native/file": "^5.16.0",
     "@ionic-native/ionic-webview": "^5.16.0",
     "@ionic-native/splash-screen": "^5.0.0",
     "@ionic-native/status-bar": "^5.0.0",
@@ -33,8 +31,6 @@
     "cordova-android": "^8.1.0",
     "cordova-ios": "^5.0.1",
     "cordova-plugin-add-swift-support": "^2.0.2",
-    "cordova-plugin-camera": "^4.1.0",
-    "cordova-plugin-file": "^6.0.2",
     "core-js": "^2.5.4",
     "rxjs": "~6.5.1",
     "tslib": "^1.9.0",
@@ -79,12 +75,15 @@
       "cordova-plugin-statusbar": {},
       "cordova-plugin-device": {},
       "cordova-plugin-splashscreen": {},
-      "cordova-plugin-ionic-webview": {},
+      "cordova-plugin-ionic-webview": {
+        "ANDROID_SUPPORT_ANNOTATIONS_VERSION": "27.+"
+      },
       "cordova-plugin-ionic-keyboard": {},
       "@ionic-enterprise/offline-storage": {},
-      "cordova-plugin-camera": {},
-      "cordova-plugin-file": {},
-      "@ionic-enterprise/identity-vault": {}
+      "@ionic-enterprise/identity-vault": {},
+      "@ionic-enterprise/camera": {
+        "ANDROID_SUPPORT_V4_VERSION": "27.+"
+      }
     },
     "platforms": [
       "android",
