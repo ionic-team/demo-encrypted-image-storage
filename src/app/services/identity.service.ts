@@ -38,9 +38,29 @@ export class IdentityService extends IonicIdentityVaultUser<DefaultSession> {
    }
 
    private createRandomGuid() {
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-      });
+    var charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    var i;
+    var result = "";
+
+    if(window.crypto && window.crypto.getRandomValues)
+    {
+      const values = new Uint32Array(length);
+      window.crypto.getRandomValues(values);
+      for(i=0; i<length; i++)
+      {
+          result += charset[values[i] % charset.length];
+      }
+      return result;
+    }
+    else
+    {
+        // Use Math.random approach, like in Opera browser
+        // Opera's Math.random is secure, see http://lists.w3.org/Archives/Public/public-webcrypto/2013Jan/0063.html
+        for(i = 0; i < length; i++)
+        {
+          result += charset[Math.floor(Math.random()*charset.length)];
+        }
+        return result;
+    }
   }
 }

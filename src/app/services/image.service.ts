@@ -95,7 +95,6 @@ export class ImageService {
     const arrayBufferView = new Uint8Array(docBlob);
     const blob = new window.Blob([ arrayBufferView.buffer ], { type: "image/jpeg"});
     const objectUrl = window.URL.createObjectURL(blob);
-    
     return this.sanitizer.bypassSecurityTrustUrl(objectUrl);
   }
 
