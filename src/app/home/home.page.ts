@@ -13,22 +13,24 @@ export class HomePage {
   }
 
   async ngOnInit() {
-    const secureImage = await this.imageService.getImageAsObjectUrl();
-    if (secureImage !== null) {
-      this.safeImg = secureImage;
-    }
+    // const secureImage = await this.imageService.getImageAsObjectUrl();
+    // if (secureImage !== null) {
+    //   this.safeImg = secureImage;
+    // }
+
   }
 
   async captureImage() {
-    let image = await this.imageService.captureNewImage();
-    this.safeImg = image;
+    await this.imageService.captureNewImage();
+    // let image = await this.imageService.captureNewImage();
+    // this.safeImg = image;
   }
 
   // Alternative method for testing purposes which loads the encrypted 
   // image as base64 instead of an object URL.
   async loadImageAsBase64() {
-    let image = await this.imageService.getImageAsBase64();
-    this.safeImg = image;
+    // let image = await this.imageService.getImageAsBase64();
+    // this.safeImg = image;
   }
 
   async deleteImage() {

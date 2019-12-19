@@ -7,8 +7,7 @@ import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { WebView } from '@ionic-native/ionic-webview/ngx';
 import { Camera } from '@ionic-enterprise/camera/ngx';
-import { Filesystem } from '@ionic-enterprise/filesystem/ngx';
-
+import { SQLite } from '@ionic-enterprise/offline-storage/ngx';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 
@@ -20,7 +19,7 @@ import { AppRoutingModule } from './app-routing.module';
     StatusBar,
     SplashScreen,
     Camera,
-    Filesystem,
+    SQLite,
     WebView,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],

@@ -86,8 +86,8 @@
       "@ionic-enterprise/offline-storage": {}
     },
     "platforms": [
-      "android",
-      "ios"
+      "ios",
+      "android"
     ]
   }
 }
