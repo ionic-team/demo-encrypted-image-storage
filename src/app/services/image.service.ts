@@ -23,12 +23,18 @@ export class ImageService {
   }
 
   public async getData() {
-    this.database.transaction((tx) => {
-      tx.executeSql("SELECT name, blob from encryptedImages", 
-        [], (tx, result) => {
-          console.log(result.rows.item(3));
-        });
-    });
+    // this.database.transaction((tx) => {
+    //   tx.executeSql("SELECT name, blob from encryptedImages", 
+    //     [], (tx, result) => {
+    //       for (let i = 0; i < result.rows.length; i++) {
+    //         console.log(result.rows.item(i));
+    //       }
+    //     });
+    // });
+
+    //await this.sqlite.echoTest();
+
+    await this.sqlite.selfTest();
 
   }
 
